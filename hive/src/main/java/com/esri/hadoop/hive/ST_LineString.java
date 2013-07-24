@@ -13,6 +13,8 @@ import org.apache.hive.pdk.HivePdkUnitTests;
 import com.esri.core.geometry.Polyline;
 import com.esri.core.geometry.ogc.OGCGeometry;
 
+import java.util.List;
+
 
 @Description(
 	name = "ST_LineString",
@@ -75,6 +77,29 @@ public class ST_LineString extends ST_Geometry {
 		} catch (Exception e) {  // IllegalArgumentException, GeometryException
 			LogUtils.Log_InvalidText(LOG, wkt);
 			return null;
+		}
+	}
+
+	// Arrays constructor.
+	// To be complete this should be extended to support other types.
+	public BytesWritable evaluate(List<DoubleWritable> x, List<DoubleWritable> y) throws UDFArgumentException {
+
+		if (x == null || y == null || x.size() != y.size()) {
+			return null;
+		}
+
+		try {		
+			Polyline linestring = new Polyline();
+			linestring.startPath(x.get(0).get(), y.get(0).get());
+
+			for (int i=1; i<x.size(); i++) {
+				linestring.lineTo(x.get(i).get(), y.get(i).get());
+			}
+
+			return GeometryUtils.geometryToEsriShapeBytesWritable(OGCGeometry.createFromEsriGeometry(linestring, null));
+		} catch (Exception e) {
+		    LogUtils.Log_InternalError(LOG, "ST_LineString: " + e);
+		    return null;
 		}
 	}
 
