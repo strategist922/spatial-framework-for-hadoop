@@ -103,4 +103,37 @@ public class ST_LineString extends ST_Geometry {
 		}
 	}
 
+	// Build a line from an array of points.
+	public BytesWritable evaluate(List<BytesWritable> points) throws UDFArgumentException {
+
+		if (points == null || points.size() == 0) {
+			return null;
+		}
+
+		try {
+			Polyline linestring = new Polyline();
+			BytesWritable bPoint = points.get(0);
+			if (GeometryUtils.getType(bPoint) != GeometryUtils.OGCType.ST_POINT) {
+				LogUtils.Log_InvalidType(LOG, GeometryUtils.OGCType.ST_POINT, GeometryUtils.getType(bPoint));
+				return null;
+			}
+			OGCPoint point = (OGCPoint)GeometryUtils.geometryFromEsriShape(bPoint);
+			linestring.startPath(point.X(), point.Y());
+
+			for (int i=1; i<points.size(); i++) {
+				bPoint = points.get(i);
+				if (GeometryUtils.getType(bPoint) != GeometryUtils.OGCType.ST_POINT) {
+					LogUtils.Log_InvalidType(LOG, GeometryUtils.OGCType.ST_POINT, GeometryUtils.getType(bPoint));
+					return null;
+				}
+				point = (OGCPoint)GeometryUtils.geometryFromEsriShape(bPoint);
+				linestring.lineTo(point.X(), point.Y());
+			}
+			return GeometryUtils.geometryToEsriShapeBytesWritable(OGCGeometry.createFromEsriGeometry(linestring, null));
+		} catch (Exception e) {
+		    LogUtils.Log_InternalError(LOG, "ST_LineString: " + e);
+		    return null;
+		}
+	}
+
 }
