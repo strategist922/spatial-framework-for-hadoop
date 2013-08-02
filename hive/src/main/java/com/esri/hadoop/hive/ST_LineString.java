@@ -12,6 +12,7 @@ import org.apache.hive.pdk.HivePdkUnitTests;
 
 import com.esri.core.geometry.Polyline;
 import com.esri.core.geometry.ogc.OGCGeometry;
+import com.esri.core.geometry.ogc.OGCPoint;
 
 import java.util.List;
 
